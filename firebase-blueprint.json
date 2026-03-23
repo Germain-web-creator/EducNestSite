@@ -1,0 +1,96 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile for students, teachers, and admins.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["student", "teacher", "master_doctorate", "admin"] },
+        "schoolId": { "type": "string" },
+        "siteId": { "type": "string" },
+        "level": { "type": "string", "enum": ["L1", "L2", "L3", "M1", "M2", "Doctorat"] },
+        "subscriptionStatus": { "type": "string", "enum": ["free", "premium"] },
+        "subscriptionEndDate": { "type": "string", "format": "date-time" },
+        "downloadCountMonth": { "type": "number" },
+        "favorites": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Document": {
+      "title": "Document",
+      "description": "Academic resource (thesis, course, exam, etc.)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "author": { "type": "string" },
+        "authorId": { "type": "string" },
+        "schoolId": { "type": "string" },
+        "siteId": { "type": "string" },
+        "level": { "type": "string" },
+        "domain": { "type": "string" },
+        "type": { "type": "string", "enum": ["licence_thesis", "master_thesis", "doctorate_thesis", "research", "course", "exam", "book"] },
+        "fileUrl": { "type": "string" },
+        "price": { "type": "number" },
+        "downloadCount": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "validatedBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "authorId", "type", "fileUrl", "status"]
+    },
+    "School": {
+      "title": "School",
+      "description": "Educational institution within a site.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "siteId": { "type": "string" },
+        "description": { "type": "string" },
+        "history": { "type": "string" },
+        "objectives": { "type": "string" },
+        "image": { "type": "string" }
+      },
+      "required": ["name", "siteId"]
+    },
+    "Masterclass": {
+      "title": "Masterclass",
+      "description": "Educational video content (TikTok style).",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "authorId": { "type": "string" },
+        "videoUrl": { "type": "string" },
+        "thumbnailUrl": { "type": "string" },
+        "category": { "type": "string" },
+        "likes": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "authorId", "videoUrl"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/documents/{docId}": {
+      "schema": "Document",
+      "description": "Academic documents"
+    },
+    "/schools/{schoolId}": {
+      "schema": "School",
+      "description": "University schools"
+    },
+    "/masterclasses/{videoId}": {
+      "schema": "Masterclass",
+      "description": "Masterclass videos"
+    }
+  }
+}

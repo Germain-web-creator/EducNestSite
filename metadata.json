@@ -1,0 +1,8 @@
+{
+  "name": "EducNest",
+  "description": "Plateforme Éducative Numérique Panafricaine - La boussole universitaire, le socle du savoir. Bibliothèque numérique, portail institutionnel et masterclass pour la réussite académique.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
