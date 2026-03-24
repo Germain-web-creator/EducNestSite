@@ -18,16 +18,24 @@ import {
   ArrowRight,
   ShieldCheck,
   TrendingUp,
-  Award
+  Award,
+  Upload,
+  LogOut
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { COLORS, SITES, SCHOOLS, MOCK_DOCUMENTS, MOCK_MASTERCLASSES } from './constants';
 import { Document, Masterclass, School } from './types';
+import { AuthProvider, useAuth } from './auth';
+import { useDocuments } from './hooks/useDocuments';
+import UserProfile from './components/UserProfile';
+import DocumentUpload from './components/DocumentUpload';
 
 // --- Components ---
 
 const Navbar = ({ activeTab, setActiveTab, onLogin }: { activeTab: string, setActiveTab: (tab: string) => void, onLogin: () => void }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const [showUpload, setShowUpload] = useState(false);
 
   const navItems = [
     { id: 'home', label: 'Accueil', icon: BookOpen },
@@ -37,78 +45,131 @@ const Navbar = ({ activeTab, setActiveTab, onLogin }: { activeTab: string, setAc
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => setActiveTab('home')}>
-            <div className="w-10 h-10 bg-[#14532D] rounded-xl flex items-center justify-center text-white font-bold text-xl">
-              E
+    <>
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16 items-center">
+            <div className="flex items-center gap-2 cursor-pointer" onClick={() => setActiveTab('home')}>
+              <div className="w-10 h-10 bg-[#14532D] rounded-xl flex items-center justify-center text-white font-bold text-xl">
+                E
+              </div>
+              <span className="text-2xl font-bold text-[#1F2937] tracking-tight">EducNest</span>
             </div>
-            <span className="text-2xl font-bold text-[#1F2937] tracking-tight">EducNest</span>
-          </div>
 
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`flex items-center gap-2 text-sm font-medium transition-colors ${
-                  activeTab === item.id ? 'text-[#14532D]' : 'text-gray-500 hover:text-[#14532D]'
-                }`}
-              >
-                <item.icon size={18} />
-                {item.label}
+            {/* Desktop Nav */}
+            <div className="hidden md:flex items-center gap-8">
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`flex items-center gap-2 text-sm font-medium transition-colors ${
+                    activeTab === item.id ? 'text-[#14532D]' : 'text-gray-500 hover:text-[#14532D]'
+                  }`}
+                >
+                  <item.icon size={18} />
+                  {item.label}
+                </button>
+              ))}
+              
+              {user ? (
+                <div className="flex items-center gap-3">
+                  {user.role !== 'student' && (
+                    <button 
+                      onClick={() => setShowUpload(true)}
+                      className="flex items-center gap-2 bg-[#B45309] text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-opacity-90 transition-all"
+                    >
+                      <Upload size={16} />
+                      Déposer
+                    </button>
+                  )}
+                  <button 
+                    onClick={() => setActiveTab('profile')}
+                    className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-full text-sm font-semibold hover:bg-gray-200 transition-all"
+                  >
+                    <UserIcon size={16} />
+                    {user.displayName}
+                  </button>
+                  <button 
+                    onClick={signOut}
+                    className="flex items-center gap-2 text-red-600 px-4 py-2 rounded-full text-sm font-semibold hover:bg-red-50 transition-all"
+                  >
+                    <LogOut size={16} />
+                  </button>
+                </div>
+              ) : (
+                <button 
+                  onClick={onLogin}
+                  className="bg-[#14532D] text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-opacity-90 transition-all shadow-md"
+                >
+                  Se connecter
+                </button>
+              )}
+            </div>
+
+            {/* Mobile Menu Button */}
+            <div className="md:hidden">
+              <button onClick={() => setIsOpen(!isOpen)} className="text-gray-500 p-2">
+                {isOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
-            ))}
-            <button 
-              onClick={onLogin}
-              className="bg-[#14532D] text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-opacity-90 transition-all shadow-md"
-            >
-              Se connecter
-            </button>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <div className="md:hidden">
-            <button onClick={() => setIsOpen(!isOpen)} className="text-gray-500 p-2">
-              {isOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Mobile Nav */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="md:hidden bg-white border-b border-gray-100 px-4 py-4 space-y-2"
-          >
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => {
-                  setActiveTab(item.id);
-                  setIsOpen(false);
-                }}
-                className={`flex items-center gap-3 w-full p-3 rounded-xl text-left ${
-                  activeTab === item.id ? 'bg-[#14532D]/10 text-[#14532D]' : 'text-gray-600'
-                }`}
-              >
-                <item.icon size={20} />
-                {item.label}
-              </button>
-            ))}
-            <button className="w-full bg-[#14532D] text-white p-3 rounded-xl font-semibold mt-4">
-              Se connecter
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </nav>
+        {/* Mobile Nav */}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="md:hidden bg-white border-b border-gray-100 px-4 py-4 space-y-2"
+            >
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setActiveTab(item.id);
+                    setIsOpen(false);
+                  }}
+                  className={`flex items-center gap-3 w-full p-3 rounded-xl text-left ${
+                    activeTab === item.id ? 'bg-[#14532D]/10 text-[#14532D]' : 'text-gray-600'
+                  }`}
+                >
+                  <item.icon size={20} />
+                  {item.label}
+                </button>
+              ))}
+              {user ? (
+                <>
+                  <button className="flex items-center gap-3 w-full p-3 rounded-xl text-left text-gray-600">
+                    <UserIcon size={20} />
+                    {user.displayName}
+                  </button>
+                  <button className="flex items-center gap-3 w-full p-3 rounded-xl text-left text-red-600">
+                    <LogOut size={20} />
+                    Déconnexion
+                  </button>
+                </>
+              ) : (
+                <button className="w-full bg-[#14532D] text-white p-3 rounded-xl font-semibold mt-4">
+                  Se connecter
+                </button>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </nav>
+      
+      {showUpload && (
+        <DocumentUpload 
+          onClose={() => setShowUpload(false)} 
+          onSuccess={() => {
+            setShowUpload(false);
+            // Refresh documents list
+          }}
+        />
+      )}
+    </>
   );
 };
 
@@ -200,11 +261,38 @@ const Hero = ({ onExplore }: { onExplore: () => void }) => (
 const Library = () => {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
+  const { user } = useAuth();
+  const { documents, loading, error, downloadDocument, toggleFavorite } = useDocuments();
 
-  const filteredDocs = MOCK_DOCUMENTS.filter(doc => 
+  const filteredDocs = documents.filter(doc => 
     doc.title.toLowerCase().includes(search.toLowerCase()) ||
     doc.author.toLowerCase().includes(search.toLowerCase())
   );
+
+  if (loading) {
+    return (
+      <section className="py-20 px-4 bg-gray-50 min-h-screen">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#14532D] mx-auto"></div>
+            <p className="text-gray-500 mt-4">Chargement des documents...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="py-20 px-4 bg-gray-50 min-h-screen">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center">
+            <p className="text-red-500">Erreur: {error}</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-20 px-4 bg-gray-50 min-h-screen">
@@ -239,37 +327,46 @@ const Library = () => {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredDocs.map((doc) => (
-            <motion.div
-              key={doc.id}
-              whileHover={{ y: -5 }}
-              className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 flex flex-col"
-            >
-              <div className="flex justify-between items-start mb-4">
-                <div className="bg-[#14532D]/10 text-[#14532D] px-3 py-1 rounded-lg text-xs font-bold uppercase">
-                  {doc.type.replace('_', ' ')}
+          {filteredDocs.map((doc) => {
+            const isFavorite = user?.favorites?.includes(doc.id) || false;
+            return (
+              <motion.div
+                key={doc.id}
+                whileHover={{ y: -5 }}
+                className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 flex flex-col"
+              >
+                <div className="flex justify-between items-start mb-4">
+                  <div className="bg-[#14532D]/10 text-[#14532D] px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    {doc.type.replace('_', ' ')}
+                  </div>
+                  <button 
+                    onClick={() => user && toggleFavorite(user.uid, doc.id, isFavorite)}
+                    className={`${isFavorite ? 'text-red-500' : 'text-gray-300'} hover:text-red-500 transition-colors`}
+                  >
+                    <Heart size={20} fill={isFavorite ? 'currentColor' : 'none'} />
+                  </button>
                 </div>
-                <button className="text-gray-300 hover:text-red-500 transition-colors">
-                  <Heart size={20} />
-                </button>
-              </div>
-              <h3 className="text-xl font-bold text-[#1F2937] mb-2 line-clamp-2 leading-tight">
-                {doc.title}
-              </h3>
-              <p className="text-sm text-gray-500 mb-4">Par <span className="font-semibold">{doc.author}</span></p>
-              
-              <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-gray-400 text-sm">
-                  <Download size={16} />
-                  <span>{doc.downloadCount}</span>
+                <h3 className="text-xl font-bold text-[#1F2937] mb-2 line-clamp-2 leading-tight">
+                  {doc.title}
+                </h3>
+                <p className="text-sm text-gray-500 mb-4">Par <span className="font-semibold">{doc.author}</span></p>
+                
+                <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-gray-400 text-sm">
+                    <Download size={16} />
+                    <span>{doc.downloadCount}</span>
+                  </div>
+                  <button 
+                    onClick={() => user && downloadDocument(doc.id)}
+                    className="flex items-center gap-2 text-[#14532D] font-bold hover:gap-3 transition-all"
+                  >
+                    Consulter
+                    <ChevronRight size={18} />
+                  </button>
                 </div>
-                <button className="flex items-center gap-2 text-[#14532D] font-bold hover:gap-3 transition-all">
-                  Consulter
-                  <ChevronRight size={18} />
-                </button>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -417,68 +514,106 @@ const Footer = () => (
   </footer>
 );
 
-const LoginModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => (
-  <AnimatePresence>
-    {isOpen && (
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onClose}
-          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        />
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="relative bg-white w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl overflow-hidden"
-        >
-          <div className="absolute top-0 left-0 right-0 h-2 bg-[#14532D]"></div>
-          <button onClick={onClose} className="absolute top-6 right-6 text-gray-400 hover:text-gray-600">
-            <X size={24} />
-          </button>
-          
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-[#14532D]/10 rounded-2xl flex items-center justify-center text-[#14532D] mx-auto mb-4">
-              <UserIcon size={32} />
-            </div>
-            <h2 className="text-3xl font-bold text-[#1F2937]">Bienvenue</h2>
-            <p className="text-gray-500">Connectez-vous à votre nid de savoir</p>
-          </div>
+const LoginModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
+  const { signIn, loading } = useAuth();
 
-          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Email Universitaire</label>
-              <input 
-                type="email" 
-                placeholder="etudiant@una.bj"
-                className="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-[#14532D] transition-all"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Mot de passe</label>
-              <input 
-                type="password" 
-                placeholder="••••••••"
-                className="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-[#14532D] transition-all"
-              />
-            </div>
-            <button className="w-full bg-[#14532D] text-white py-4 rounded-2xl font-bold text-lg shadow-lg hover:bg-opacity-90 transition-all">
-              Se connecter
+  const handleGoogleSignIn = async () => {
+    try {
+      await signIn();
+      onClose();
+    } catch (error) {
+      console.error('Error signing in with Google:', error);
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className="relative bg-white w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl overflow-hidden"
+          >
+            <div className="absolute top-0 left-0 right-0 h-2 bg-[#14532D]"></div>
+            <button onClick={onClose} className="absolute top-6 right-6 text-gray-400 hover:text-gray-600">
+              <X size={24} />
             </button>
-          </form>
-          
-          <div className="mt-8 text-center">
-            <p className="text-sm text-gray-500">
-              Pas encore de compte ? <span className="text-[#14532D] font-bold cursor-pointer">S'inscrire</span>
-            </p>
-          </div>
-        </motion.div>
-      </div>
-    )}
-  </AnimatePresence>
-);
+            
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-[#14532D]/10 rounded-2xl flex items-center justify-center text-[#14532D] mx-auto mb-4">
+                <UserIcon size={32} />
+              </div>
+              <h2 className="text-3xl font-bold text-[#1F2937]">Bienvenue</h2>
+              <p className="text-gray-500">Connectez-vous à votre nid de savoir</p>
+            </div>
+
+            <div className="space-y-4">
+              <button
+                onClick={handleGoogleSignIn}
+                disabled={loading}
+                className="w-full bg-white border-2 border-gray-200 text-[#1F2937] py-4 rounded-2xl font-bold text-lg hover:bg-gray-50 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+              >
+                <svg className="w-6 h-6" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                {loading ? 'Connexion...' : 'Continuer avec Google'}
+              </button>
+              
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">ou</span>
+                </div>
+              </div>
+              
+              <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">Email Universitaire</label>
+                  <input 
+                    type="email" 
+                    placeholder="etudiant@una.bj"
+                    className="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-[#14532D] transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">Mot de passe</label>
+                  <input 
+                    type="password" 
+                    placeholder="••••••••"
+                    className="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-[#14532D] transition-all"
+                  />
+                </div>
+                <button className="w-full bg-[#14532D] text-white py-4 rounded-2xl font-bold text-lg shadow-lg hover:bg-opacity-90 transition-all">
+                  Se connecter
+                </button>
+              </form>
+            </div>
+            
+            <div className="mt-8 text-center">
+              <p className="text-sm text-gray-500">
+                Pas encore de compte ? <span className="text-[#14532D] font-bold cursor-pointer">S'inscrire</span>
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+};
 
 const Marketplace = () => (
   <section className="py-20 px-4 bg-white">
@@ -527,9 +662,21 @@ const Marketplace = () => (
 
 // --- Main App ---
 
-export default function App() {
+const AppContent = () => {
   const [activeTab, setActiveTab] = useState('home');
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const { loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#14532D] mx-auto mb-4"></div>
+          <p className="text-gray-500">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white font-sans selection:bg-[#14532D] selection:text-white">
@@ -581,9 +728,18 @@ export default function App() {
         {activeTab === 'portal' && <Portal />}
         {activeTab === 'masterclass' && <MasterclassFeed />}
         {activeTab === 'marketplace' && <Marketplace />}
+        {activeTab === 'profile' && <UserProfile />}
       </main>
 
       <Footer />
     </div>
+  );
+};
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
