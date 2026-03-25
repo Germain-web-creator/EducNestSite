@@ -1,92 +1,112 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 
-import { NextRequest, NextResponse } from 'next/server';
-import { collection, getDocs, query, where, orderBy, limit, doc, getDoc, updateDoc } from 'firebase/firestore';
-import { db } from '../../../lib/firebase';
+const supabaseUrl = 'https://lpvvcgrfynbqkervppsx.supabase.co'
+const supabaseAnonKey = 'sb_publishable_VyiputyGtotGGS5Jz1EW-A_9ZhAVydH'
+const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const search = searchParams.get('search') || '';
-    const type = searchParams.get('type') || '';
-    const schoolId = searchParams.get('schoolId') || '';
-    const page = parseInt(searchParams.get('page') || '1');
-    const limitPerPage = 12;
+    const { searchParams } = new URL(request.url)
+    const search = searchParams.get('search') || ''
+    const category = searchParams.get('category') || ''
+    const schoolId = searchParams.get('schoolId') || ''
+    const level = searchParams.get('level') || ''
+    const page = parseInt(searchParams.get('page') || '1')
+    const limitPerPage = 12
 
-    let q = query(
-      collection(db, 'documents'),
-      where('status', '==', 'approved'),
-      orderBy('createdAt', 'desc'),
-      limit(limitPerPage)
-    );
+    let query = supabase
+      .from('documents')
+      .select(`
+        *,
+        schools (name, acronym),
+        universities (name, acronym)
+      `)
+      .eq('is_public', true)
+      .order('created_at', { ascending: false })
+      .range((page - 1) * limitPerPage, page * limitPerPage - 1)
 
-    // Appliquer les filtres
-    if (type) {
-      q = query(q, where('type', '==', type));
+    // Apply filters
+    if (category && category !== 'all') {
+      query = query.eq('category', category)
     }
-    if (schoolId) {
-      q = query(q, where('schoolId', '==', schoolId));
+    if (schoolId && schoolId !== 'all') {
+      query = query.eq('school_id', schoolId)
+    }
+    if (level && level !== 'all') {
+      query = query.eq('level', level)
     }
 
-    const querySnapshot = await getDocs(q);
-    const documents = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
+    const { data: documents, error, count } = await query
 
-    // Filtrage par recherche (côté serveur pour le titre/auteur)
-    let filteredDocuments = documents;
+    if (error) {
+      console.error('Error fetching documents:', error)
+      return NextResponse.json(
+        { error: 'Failed to fetch documents' },
+        { status: 500 }
+      )
+    }
+
+    // Client-side filtering for search
+    let filteredDocuments = documents || []
     if (search) {
       filteredDocuments = documents.filter(doc =>
         doc.title.toLowerCase().includes(search.toLowerCase()) ||
         doc.author.toLowerCase().includes(search.toLowerCase())
-      );
+      )
     }
 
     return NextResponse.json({
       documents: filteredDocuments,
-      total: filteredDocuments.length,
+      total: count || 0,
       page,
-      totalPages: Math.ceil(filteredDocuments.length / limitPerPage)
-    });
+      totalPages: Math.ceil((count || 0) / limitPerPage)
+    })
 
   } catch (error) {
-    console.error('Error fetching documents:', error);
+    console.error('Error fetching documents:', error)
     return NextResponse.json(
       { error: 'Failed to fetch documents' },
       { status: 500 }
-    );
+    )
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { documentId, action } = body;
+    const body = await request.json()
+    const { documentId, action } = body
 
     if (action === 'download') {
-      // Incrémenter le compteur de téléchargement
-      const docRef = doc(db, 'documents', documentId);
-      const docSnap = await getDoc(docRef);
-      
-      if (docSnap.exists()) {
-        const currentCount = docSnap.data().downloadCount || 0;
-        await updateDoc(docRef, { downloadCount: currentCount + 1 });
-        
-        return NextResponse.json({ success: true, downloadCount: currentCount + 1 });
+      // Increment download count
+      const { data, error } = await supabase
+        .from('documents')
+        .update({ downloads_count: new Date().toISOString() })
+        .eq('id', documentId)
+        .select('downloads_count')
+        .single()
+
+      if (error) {
+        console.error('Error updating download count:', error)
+        return NextResponse.json(
+          { error: 'Failed to update download count' },
+          { status: 500 }
+        )
       }
+
+      return NextResponse.json({ 
+        success: true, 
+        downloadCount: data?.downloads_count || 0 
+      })
     }
 
-    return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+    return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
 
   } catch (error) {
-    console.error('Error updating document:', error);
+    console.error('Error updating document:', error)
     return NextResponse.json(
       { error: 'Failed to update document' },
       { status: 500 }
-    );
+    )
   }
 }

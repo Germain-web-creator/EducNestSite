@@ -1,141 +1,122 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
+'use client'
 
-'use client';
-
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { 
-  User as FirebaseUser,
-  onAuthStateChanged,
-  signInWithPopup,
-  signOut as firebaseSignOut
-} from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { auth, db, googleProvider } from './firebase';
-import { User, UserRole } from '../types';
+import { createContext, useContext, useEffect, useState } from 'react'
+import { User, Session, AuthError } from '@supabase/supabase-js'
+import { supabase } from './supabase'
 
 interface AuthContextType {
-  user: User | null;
-  firebaseUser: FirebaseUser | null;
-  loading: boolean;
-  signIn: () => Promise<void>;
-  signOut: () => Promise<void>;
-  updateUserProfile: (updates: Partial<User>) => Promise<void>;
+  user: User | null
+  session: Session | null
+  loading: boolean
+  signUp: (email: string, password: string, userData: any) => Promise<{ error: AuthError | null }>
+  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>
+  signOut: () => Promise<{ error: AuthError | null }>
+  resetPassword: (email: string) => Promise<{ error: AuthError | null }>
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
-
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
-  const [loading, setLoading] = useState(true);
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null)
+  const [session, setSession] = useState<Session | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setFirebaseUser(firebaseUser);
-      
-      if (firebaseUser) {
-        try {
-          let userProfile = await getUserProfile(firebaseUser.uid);
-          
-          // If user doesn't exist in Firestore, create profile
-          if (!userProfile) {
-            const defaultRole = firebaseUser.email?.includes('@una.bj') ? UserRole.STUDENT : UserRole.STUDENT;
-            const newUser: User = {
-              uid: firebaseUser.uid,
-              email: firebaseUser.email || '',
-              displayName: firebaseUser.displayName || '',
-              role: defaultRole,
-              subscriptionStatus: 'free',
-              downloadCountMonth: 0,
-              favorites: [],
-              createdAt: new Date().toISOString()
-            };
-            
-            await createUserProfile(firebaseUser.uid, newUser);
-            userProfile = newUser;
-          }
-          
-          setUser(userProfile);
-        } catch (error) {
-          console.error('Error fetching user profile:', error);
-        }
-      } else {
-        setUser(null);
-      }
-      
-      setLoading(false);
-    });
-
-    return unsubscribe;
-  }, []);
-
-  const signIn = async () => {
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      // The onAuthStateChanged listener will handle updating the user state
-    } catch (error) {
-      console.error('Error signing in:', error);
-      throw error;
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      setSession(session)
+      setUser(session?.user ?? null)
+      setLoading(false)
     }
-  };
+
+    getSession()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setSession(session)
+        setUser(session?.user ?? null)
+        setLoading(false)
+      }
+    )
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const signUp = async (email: string, password: string, userData: any) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: userData
+        }
+      })
+
+      if (!error && data.user) {
+        const { error: profileError } = await supabase
+          .from('user_profiles')
+          .insert({
+            user_id: data.user.id,
+            role: userData.role || 'student',
+            first_name: userData.first_name,
+            last_name: userData.last_name,
+            school_id: userData.school_id,
+            university_id: userData.university_id,
+            level: userData.level
+          })
+
+        if (profileError) {
+          console.error('Error creating user profile:', profileError)
+        }
+      }
+
+      return { error }
+    } catch (error) {
+      return { error: error as AuthError }
+    }
+  }
+
+  const signIn = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+    return { error }
+  }
 
   const signOut = async () => {
-    try {
-      await firebaseSignOut(auth);
-    } catch (error) {
-      console.error('Error signing out:', error);
-      throw error;
-    }
-  };
+    const { error } = await supabase.auth.signOut()
+    return { error }
+  }
 
-  const updateUserProfile = async (updates: Partial<User>) => {
-    if (!user) return;
-    
-    try {
-      const updatedUser = { ...user, ...updates };
-      await createUserProfile(user.uid, updatedUser);
-      setUser(updatedUser);
-    } catch (error) {
-      console.error('Error updating user profile:', error);
-      throw error;
-    }
-  };
+  const resetPassword = async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    })
+    return { error }
+  }
 
-  const value: AuthContextType = {
+  const value = {
     user,
-    firebaseUser,
+    session,
     loading,
+    signUp,
     signIn,
     signOut,
-    updateUserProfile
-  };
+    resetPassword,
+  }
 
   return (
     <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
-  );
-};
-
-// Helper functions
-async function getUserProfile(uid: string): Promise<User | null> {
-  const userRef = doc(db, 'users', uid);
-  const userSnap = await getDoc(userRef);
-  return userSnap.exists() ? userSnap.data() as User : null;
+  )
 }
 
-async function createUserProfile(uid: string, userData: User): Promise<void> {
-  const userRef = doc(db, 'users', uid);
-  await setDoc(userRef, userData, { merge: true });
+export function useAuth() {
+  const context = useContext(AuthContext)
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
+  return context
 }
