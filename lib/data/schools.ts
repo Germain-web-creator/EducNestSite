@@ -13,7 +13,7 @@ export const schools: School[] = [
     id: 'eaq',
     name: 'École d\'Aquaculture',
     acronym: 'EAQ',
-    director: 'Monsieur Darius TOSSAVI',
+    director: 'Professeur Darius TOSSAVI',
     description: 'Formation spécialisée en aquaculture et pisciculture',
     programs: ['Licence', 'Master', 'Doctorat'],
     university_id: 'una'
@@ -22,7 +22,7 @@ export const schools: School[] = [
     id: 'eapa',
     name: 'École d\'Agrobusiness et de Politiques Agricoles',
     acronym: 'EAPA',
-    director: 'Monsieur Nounagnon Emile HOUNGBO',
+    director: 'Professeur Nounagnon Emile HOUNGBO',
     description: 'Formation en management agroalimentaire et politiques agricoles',
     programs: ['Licence', 'Master', 'Doctorat'],
     university_id: 'una'
@@ -31,7 +31,7 @@ export const schools: School[] = [
     id: 'srv',
     name: 'École de Sociologie Rurale et Vulgarisation Agricole',
     acronym: 'SRVA',
-    director: 'Monsieur Wilfried PADONOU',
+    director: 'Professeur Wilfried PADONOU',
     description: 'Formation en sociologie rurale et vulgarisation agricole',
     programs: ['Licence', 'Master', 'Doctorat'],
     university_id: 'una'
@@ -40,7 +40,7 @@ export const schools: School[] = [
     id: 'egpvs',
     name: 'École de Gestion de la Production Végétale et Semencière',
     acronym: 'EGPVS',
-    director: 'Monsieur Apollinaire ADANDONON',
+    director: 'Professeur Apollinaire ADANDONON',
     description: 'Formation en production végétale et semences',
     programs: ['Licence', 'Master', 'Doctorat'],
     university_id: 'una'
@@ -49,7 +49,7 @@ export const schools: School[] = [
     id: 'egese',
     name: 'École de Gestion et d\'Exploitation des Systèmes d\'Élevage',
     acronym: 'EGESE',
-    director: 'Monsieur Sabbas ATTINDEHOU',
+    director: 'Professeur Sabbas ATTINDEHOU',
     description: 'Formation en gestion des systèmes d\'élevage',
     programs: ['Licence', 'Master', 'Doctorat'],
     university_id: 'una'
@@ -58,7 +58,7 @@ export const schools: School[] = [
     id: 'efort',
     name: 'École de Foresterie Tropicale',
     acronym: 'EForT',
-    director: 'Monsieur Olou Toussaint LOUGBEGNON',
+    director: 'Professeur Olou Toussaint LOUGBEGNON',
     description: 'Formation en foresterie tropicale et gestion des ressources forestières',
     programs: ['Licence', 'Master', 'Doctorat'],
     university_id: 'una'
@@ -67,7 +67,7 @@ export const schools: School[] = [
     id: 'estc',
     name: 'École des Sciences et Techniques de Conservation',
     acronym: 'ESTC',
-    director: 'Madame Flora CHADARE',
+    director: 'Professeure Flora CHADARE',
     description: 'Formation en sciences et techniques de conservation des produits agricoles',
     programs: ['Licence', 'Master', 'Doctorat'],
     university_id: 'una'

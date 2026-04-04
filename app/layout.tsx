@@ -18,6 +18,11 @@ export const metadata: Metadata = {
   authors: [{ name: 'EducNest Team' }],
   creator: 'Germain NOUMONVI Chancyr',
   publisher: 'EducNest',
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico',
+  },
   formatDetection: {
     email: false,
     address: false,
