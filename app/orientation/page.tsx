@@ -21,18 +21,18 @@ import {
 export default function OrientationPage() {
   const [selectedSchool, setSelectedSchool] = useState<string | null>(null)
 
-  const getSchoolIcon = (schoolId: string) => {
-    switch (schoolId) {
-      case 'eaq': return '🐟'
-      case 'eapa': return '🌾'
-      case 'srv': return '👥'
-      case 'egpvs': return '🌱'
-      case 'egese': return '🐄'
-      case 'efort': return '🌳'
-      case 'estc': return '🔬'
-      default: return '🎓'
-    }
+  const getSchoolLogo = (schoolId: string) => {
+  const logos = {
+    'eaq': '/img/EAQ-UNA.png',
+    'eapa': '/img/EAPA-UNA.png',
+    'srv': '/img/ERSVA-UNA.png',
+    'egpvs': '/img/EGPVS-UNA.png',
+    'egese': '/img/EGESE-UNA.png',
+    'efort': '/img/EForT-UNA.png',
+    'estc': '/img/ESTCTPA-UNA.png'
   }
+  return logos[schoolId as keyof typeof logos] || '/img/UNA-Logo.png'
+}
 
   const getSchoolColor = (schoolId: string) => {
     const colors = {
@@ -64,9 +64,11 @@ export default function OrientationPage() {
         <Card className="mb-12 bg-gradient-to-r from-green-700 to-green-800 text-white">
           <CardHeader>
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center">
-                <span className="text-2xl font-bold text-green-800">UNA</span>
-              </div>
+              <img 
+                src="/img/UNA-Logo.png" 
+                alt="Université Nationale d'Agriculture"
+                className="w-16 h-16 bg-white rounded-xl p-2 object-contain"
+              />
               <div>
                 <CardTitle className="text-2xl text-white">
                   {universities[0].name}
@@ -112,7 +114,11 @@ export default function OrientationPage() {
             >
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="text-3xl">{getSchoolIcon(school.id)}</div>
+                  <img 
+                    src={getSchoolLogo(school.id)} 
+                    alt={`${school.name} logo`}
+                    className="w-12 h-12 object-contain rounded-lg"
+                  />
                   <div>
                     <CardTitle className="text-lg">{school.name}</CardTitle>
                     <CardDescription className="font-semibold">

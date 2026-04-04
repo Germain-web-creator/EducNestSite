@@ -61,21 +61,15 @@ export default function HomePage() {
 
   const testimonials = [
     {
-      name: 'Marie KPOHINOU',
-      role: 'Étudiante M2 - EForT',
-      content: 'EducNest a transformé ma façon d\'étudier. J\'accède facilement à tous les documents dont j\'ai besoin.',
+      name: 'NOUMONVI Chancyr Germain',
+      role: 'Créateur & Fondateur d\'EducNest',
+      content: 'EducNest représente la solution numérique qu\'il manquait à l\'UNA. Une plateforme pensée par et pour les étudiants agronomes pour faciliter l\'accès au savoir académique.',
       rating: 5
     },
     {
-      name: 'Jean TOSSAVI',
-      role: 'Enseignant - EAQ',
-      content: 'Une plateforme indispensable pour l\'enseignement et la recherche à l\'UNA.',
-      rating: 5
-    },
-    {
-      name: 'Sophie ADANDONON',
-      role: 'Étudiante L3 - EGPVS',
-      content: 'Je recommande EducNest à tous les étudiants. C\'est simple, rapide et efficace.',
+      name: 'DJAGBA Odirick Belhor',
+      role: 'SEO & Support Technique',
+      content: 'La plateforme est techniquement robuste avec une architecture moderne et sécurisée. Nous avons optimisé chaque aspect pour garantir une expérience utilisateur exceptionnelle.',
       rating: 5
     }
   ]
