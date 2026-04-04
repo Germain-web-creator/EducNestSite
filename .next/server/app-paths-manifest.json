@@ -1,15 +1,1 @@
-{
-  "/_not-found/page": "app/_not-found/page.js",
-  "/api/schools/route": "app/api/schools/route.js",
-  "/api/universities/route": "app/api/universities/route.js",
-  "/api/auth/callback/route": "app/api/auth/callback/route.js",
-  "/document/[id]/page": "app/document/[id]/page.js",
-  "/orientation/page": "app/orientation/page.js",
-  "/login/page": "app/login/page.js",
-  "/dashboard/page": "app/dashboard/page.js",
-  "/profile/page": "app/profile/page.js",
-  "/page": "app/page.js",
-  "/api/subscriptions/route": "app/api/subscriptions/route.js",
-  "/api/documents/route": "app/api/documents/route.js",
-  "/register/page": "app/register/page.js"
-}
+{}
