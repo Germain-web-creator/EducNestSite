@@ -46,15 +46,6 @@ export const schools: School[] = [
     university_id: 'una'
   },
   {
-    id: 'egpvs-directeur-adjoint',
-    name: 'Directeur Adjoint de l\'EGPVS',
-    acronym: 'EGPVS-DA',
-    director: 'Monsieur David Koffi MONTCHO HAMBADA',
-    description: 'Direction adjointe de l\'EGPVS',
-    programs: [],
-    university_id: 'una'
-  },
-  {
     id: 'egese',
     name: 'École de Gestion et d\'Exploitation des Systèmes d\'Élevage',
     acronym: 'EGESE',

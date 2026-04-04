@@ -83,7 +83,7 @@ export default function OrientationPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="flex items-center gap-3">
                 <MapPin className="h-5 w-5 text-green-200" />
-                <span className="text-green-100">Parakou, Bénin</span>
+                <span className="text-green-100">Kétou, Bénin</span>
               </div>
               <div className="flex items-center gap-3">
                 <Globe className="h-5 w-5 text-green-200" />
@@ -185,7 +185,7 @@ export default function OrientationPage() {
               <div className="flex flex-col items-center gap-2">
                 <Phone className="h-8 w-8 text-green-700" />
                 <span className="font-semibold">Téléphone</span>
-                <span className="text-sm text-gray-600">+229 00 00 00 00</span>
+                <span className="text-sm text-gray-600">+229 0144671579</span>
               </div>
               <div className="flex flex-col items-center gap-2">
                 <Mail className="h-8 w-8 text-green-700" />
@@ -195,7 +195,7 @@ export default function OrientationPage() {
               <div className="flex flex-col items-center gap-2">
                 <MapPin className="h-8 w-8 text-green-700" />
                 <span className="font-semibold">Adresse</span>
-                <span className="text-sm text-gray-600">Parakou, Bénin</span>
+                <span className="text-sm text-gray-600">Kétou, Bénin</span>
               </div>
             </div>
             

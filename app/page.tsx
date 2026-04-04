@@ -308,8 +308,8 @@ export default function HomePage() {
               <h3 className="font-semibold mb-4">Contact</h3>
               <ul className="space-y-2 text-gray-400">
                 <li>contact@educnest.bj</li>
-                <li>Parakou, Bénin</li>
-                <li>+229 00 00 00 00</li>
+                <li>Kétou, Bénin</li>
+                <li>+229 0144671579</li>
               </ul>
             </div>
           </div>
