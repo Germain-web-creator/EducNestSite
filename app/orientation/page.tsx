@@ -3,364 +3,204 @@
 import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { MapPin, GraduationCap, Users, BookOpen, Phone, Mail, Globe } from 'lucide-react'
-
-interface University {
-  id: string
-  name: string
-  description: string
-  sites: Site[]
-}
-
-interface Site {
-  name: string
-  location: string
-  description: string
-  coordinates: string
-  contact: {
-    phone?: string
-    email?: string
-    website?: string
-  }
-  schools: School[]
-}
-
-interface School {
-  name: string
-  acronym: string
-  description: string
-  programs: string[]
-  director: string
-}
-
-const unaData: University = {
-  id: 'una',
-  name: 'Université Nationale d\'Agriculture',
-  description: 'Première université agricole du Bénin, dédiée à la formation et à la recherche en sciences agronomiques.',
-  sites: [
-    {
-      name: 'Site de Kétou',
-      location: 'Kétou, Plateau',
-      description: 'Campus principal abritant les écoles de gestion et de production agricole',
-      coordinates: '7.3217° N, 2.9385° E',
-      contact: {
-        phone: '+229 21 31 00 00',
-        email: 'contact@una.bj',
-        website: 'www.una.bj'
-      },
-      schools: [
-        {
-          name: 'Centre Agricole et de Gestion',
-          acronym: 'CAG',
-          description: 'Formation en gestion agricole, économie rurale et développement',
-          programs: ['Licence Gestion Agricole', 'Master Économie Rurale', 'Doctorat Sciences Agronomiques'],
-          director: 'Prof. Dr. Ir. S. A. BOKO'
-        },
-        {
-          name: 'École de Gestion et de Revenus',
-          acronym: 'EGR',
-          description: 'Formation en gestion financière et comptabilité agricole',
-          programs: ['Licence Comptabilité', 'Master Finance Agricole'],
-          director: 'Dr. M. KPOHINOU'
-        },
-        {
-          name: 'École Supérieure des Techniques et de la Commercialisation des Produits Agricoles',
-          acronym: 'ESTCTPA',
-          description: 'Formation en transformation et commercialisation des produits agricoles',
-          programs: ['Licence Agroalimentaire', 'Master Marketing Agricole'],
-          director: 'Dr. A. ADJOVI'
-        }
-      ]
-    },
-    {
-      name: 'Site de Parakou',
-      location: 'Parakou, Borgou',
-      description: 'Campus spécialisé dans les productions animales et aquacoles',
-      coordinates: '9.3575° N, 2.6163° E',
-      contact: {
-        phone: '+229 21 32 00 00',
-        email: 'parakou@una.bj'
-      },
-      schools: [
-        {
-          name: 'École d\'Aménagement et de Production Animale',
-          acronym: 'EAPA',
-          description: 'Formation en élevage et production animale',
-          programs: ['Licence Production Animale', 'Master Zootechnie'],
-          director: 'Dr. J. TCHABI'
-        },
-        {
-          name: 'École d\'Aquaculture',
-          acronym: 'EAQ',
-          description: 'Formation en pisciculture et aquaculture',
-          programs: ['Licence Aquaculture', 'Master Pisciculture'],
-          director: 'Dr. S. AHOUANSOU'
-        },
-        {
-          name: 'École de Recherche et de Services Vétérinaires et Agricoles',
-          acronym: 'ERSVA',
-          description: 'Formation en santé animale et services vétérinaires',
-          programs: ['Licence Santé Animale', 'Master Médecine Vétérinaire'],
-          director: 'Dr. M. GBAGUIDI'
-        }
-      ]
-    },
-    {
-      name: 'Site de Dassa',
-      location: 'Dassa-Zoumè, Collines',
-      description: 'Campus forestier et environnemental',
-      coordinates: '7.7542° N, 2.1667° E',
-      contact: {
-        phone: '+229 21 33 00 00',
-        email: 'dassa@una.bj'
-      },
-      schools: [
-        {
-          name: 'École de Foresterie Tropicale',
-          acronym: 'EForT',
-          description: 'Formation en foresterie, environnement et gestion des ressources naturelles',
-          programs: ['Licence Foresterie', 'Master Environnement', 'Doctorat Sciences Forestières'],
-          director: 'Dr. Ir. K. I. DELEKE KOKO MIDIOHOUAN'
-        },
-        {
-          name: 'École des Hautes Études d\'Aménagement et de Valorisation',
-          acronym: 'EHEAV',
-          description: 'Formation en aménagement du territoire et valorisation des ressources',
-          programs: ['Master Aménagement', 'Doctorat Gestion des Ressources'],
-          director: 'Prof. Dr. Ir. A. YEVIDE'
-        }
-      ]
-    },
-    {
-      name: 'Site de Tchetti',
-      location: 'Tchetti, Collines',
-      description: 'Campus technologique et de génie agricole',
-      coordinates: '7.7500° N, 1.8833° E',
-      contact: {
-        phone: '+229 21 34 00 00',
-        email: 'tchetti@una.bj'
-      },
-      schools: [
-        {
-          name: 'École de Génie des Équipements et de la Sécurité Alimentaire',
-          acronym: 'EGESE',
-          description: 'Formation en mécanisation agricole et sécurité alimentaire',
-          programs: ['Licence Génie Rural', 'Master Mécanisation Agricole'],
-          director: 'Dr. Ir. G. SALAKO'
-        },
-        {
-          name: 'École de Génie des Procédés et de la Valorisation des Systèmes',
-          acronym: 'EGPVS',
-          description: 'Formation en transformation agroalimentaire et procédés industriels',
-          programs: ['Licence Agro-industrie', 'Master Procédés Alimentaires'],
-          director: 'Dr. C. FADOUN'
-        },
-        {
-          name: 'École Doctorale des Sciences Agronomiques et de l\'Environnement',
-          acronym: 'EDSAE',
-          description: 'Formation doctorale en sciences agronomiques et environnement',
-          programs: ['Doctorat Sciences Agronomiques', 'Doctorat Environnement', 'HDR'],
-          director: 'Prof. Dr. Ir. E. HOUNGBO'
-        }
-      ]
-    }
-  ]
-}
+import { Badge } from '@/components/ui/badge'
+import { schools } from '@/lib/data/schools'
+import { universities } from '@/lib/data/universities'
+import { 
+  Users, 
+  BookOpen, 
+  Award, 
+  MapPin, 
+  Phone, 
+  Mail, 
+  Globe,
+  User,
+  GraduationCap
+} from 'lucide-react'
 
 export default function OrientationPage() {
-  const [selectedSite, setSelectedSite] = useState<Site | null>(null)
+  const [selectedSchool, setSelectedSchool] = useState<string | null>(null)
+
+  const getSchoolIcon = (schoolId: string) => {
+    switch (schoolId) {
+      case 'eaq': return '🐟'
+      case 'eapa': return '🌾'
+      case 'srv': return '👥'
+      case 'egpvs': return '🌱'
+      case 'egese': return '🐄'
+      case 'efort': return '🌳'
+      case 'estc': return '🔬'
+      default: return '🎓'
+    }
+  }
+
+  const getSchoolColor = (schoolId: string) => {
+    const colors = {
+      'eaq': 'bg-blue-100 text-blue-800 border-blue-200',
+      'eapa': 'bg-green-100 text-green-800 border-green-200',
+      'srv': 'bg-purple-100 text-purple-800 border-purple-200',
+      'egpvs': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      'egese': 'bg-orange-100 text-orange-800 border-orange-200',
+      'efort': 'bg-emerald-100 text-emerald-800 border-emerald-200',
+      'estc': 'bg-red-100 text-red-800 border-red-200'
+    }
+    return colors[schoolId as keyof typeof colors] || 'bg-gray-100 text-gray-800 border-gray-200'
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50">
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-green-800 mb-4">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Portail d'Orientation UNA
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Découvrez les 4 sites de l'Université Nationale d'Agriculture et leurs écoles 
-            pour faire le bon choix pour votre avenir académique
+            Découvrez les différentes écoles et programmes de l'Université Nationale d'Agriculture
           </p>
         </div>
 
-        {/* University Overview */}
-        <Card className="mb-12 bg-gradient-to-r from-green-700 to-emerald-700 text-white">
+        {/* University Info */}
+        <Card className="mb-12 bg-gradient-to-r from-green-700 to-green-800 text-white">
           <CardHeader>
-            <CardTitle className="text-2xl flex items-center gap-3">
-              <GraduationCap className="h-8 w-8" />
-              {unaData.name}
-            </CardTitle>
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center">
+                <span className="text-2xl font-bold text-green-800">UNA</span>
+              </div>
+              <div>
+                <CardTitle className="text-2xl text-white">
+                  {universities[0].name}
+                </CardTitle>
+                <CardDescription className="text-green-100">
+                  {universities[0].description}
+                </CardDescription>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
-            <p className="text-green-50 mb-6">{unaData.description}</p>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-green-200">4</div>
-                <div className="text-green-100">Sites</div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="flex items-center gap-3">
+                <MapPin className="h-5 w-5 text-green-200" />
+                <span className="text-green-100">Parakou, Bénin</span>
               </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-green-200">11</div>
-                <div className="text-green-100">Écoles</div>
+              <div className="flex items-center gap-3">
+                <Globe className="h-5 w-5 text-green-200" />
+                <a 
+                  href={universities[0].website} 
+                  className="text-green-100 hover:text-white transition-colors"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {universities[0].website}
+                </a>
               </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-green-200">30+</div>
-                <div className="text-green-100">Programmes</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-green-200">5000+</div>
-                <div className="text-green-100">Étudiants</div>
+              <div className="flex items-center gap-3">
+                <Mail className="h-5 w-5 text-green-200" />
+                <span className="text-green-100">contact@una.bj</span>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Sites Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          {unaData.sites.map((site, index) => (
+        {/* Schools Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+          {schools.map((school) => (
             <Card 
-              key={index} 
-              className={`cursor-pointer transition-all hover:shadow-xl ${
-                selectedSite?.name === site.name ? 'ring-2 ring-green-500' : ''
-              }`}
-              onClick={() => setSelectedSite(site)}
+              key={school.id} 
+              className={`cursor-pointer transition-all hover:shadow-xl border-2 ${getSchoolColor(school.id)}`}
+              onClick={() => setSelectedSchool(selectedSchool === school.id ? null : school.id)}
             >
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5 text-green-700" />
-                  {site.name}
-                </CardTitle>
-                <CardDescription className="flex items-center gap-2">
-                  <span className="text-green-600">📍</span>
-                  {site.location}
-                </CardDescription>
+                <div className="flex items-center gap-3">
+                  <div className="text-3xl">{getSchoolIcon(school.id)}</div>
+                  <div>
+                    <CardTitle className="text-lg">{school.name}</CardTitle>
+                    <CardDescription className="font-semibold">
+                      {school.acronym}
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-4">{site.description}</p>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {site.schools.map((school, schoolIndex) => (
-                    <span 
-                      key={schoolIndex}
-                      className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium"
-                    >
-                      {school.acronym}
-                    </span>
-                  ))}
+                <p className="text-sm text-gray-600 mb-4">
+                  {school.description}
+                </p>
+                
+                <div className="flex items-center gap-2 mb-4">
+                  <User className="h-4 w-4 text-gray-500" />
+                  <span className="text-sm font-medium">
+                    {school.director}
+                  </span>
                 </div>
-                <div className="flex items-center gap-4 text-sm text-gray-500">
-                  {site.contact.phone && (
-                    <span className="flex items-center gap-1">
-                      <Phone className="h-3 w-3" />
-                      {site.contact.phone}
-                    </span>
-                  )}
-                  {site.contact.email && (
-                    <span className="flex items-center gap-1">
-                      <Mail className="h-3 w-3" />
-                      {site.contact.email}
-                    </span>
-                  )}
-                </div>
+
+                {school.programs.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-4">
+                    {school.programs.map((program) => (
+                      <Badge key={program} variant="secondary" className="text-xs">
+                        {program}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+
+                {selectedSchool === school.id && (
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <h4 className="font-semibold mb-2 flex items-center gap-2">
+                      <GraduationCap className="h-4 w-4" />
+                      Programmes disponibles
+                    </h4>
+                    <ul className="text-sm space-y-1">
+                      {school.programs.map((program) => (
+                        <li key={program} className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-green-600 rounded-full" />
+                          {program}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}
         </div>
 
-        {/* Selected Site Details */}
-        {selectedSite && (
-          <Card className="mb-12">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="h-6 w-6 text-green-700" />
-                {selectedSite.name} - Détails
-              </CardTitle>
-              <CardDescription>
-                {selectedSite.location} • {selectedSite.coordinates}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Contact Info */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    Contact
-                  </h3>
-                  <div className="space-y-2">
-                    {selectedSite.contact.phone && (
-                      <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4 text-gray-500" />
-                        <span>{selectedSite.contact.phone}</span>
-                      </div>
-                    )}
-                    {selectedSite.contact.email && (
-                      <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4 text-gray-500" />
-                        <span>{selectedSite.contact.email}</span>
-                      </div>
-                    )}
-                    {selectedSite.contact.website && (
-                      <div className="flex items-center gap-2">
-                        <Globe className="h-4 w-4 text-gray-500" />
-                        <span>{selectedSite.contact.website}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Schools */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                    <BookOpen className="h-5 w-5" />
-                    Écoles disponibles
-                  </h3>
-                  <div className="space-y-4">
-                    {selectedSite.schools.map((school, schoolIndex) => (
-                      <div key={schoolIndex} className="border-l-4 border-green-500 pl-4">
-                        <h4 className="font-semibold text-green-800">
-                          {school.name} ({school.acronym})
-                        </h4>
-                        <p className="text-sm text-gray-600 mb-2">{school.description}</p>
-                        <p className="text-sm text-gray-500 mb-2">
-                          <strong>Directeur:</strong> {school.director}
-                        </p>
-                        <div className="flex flex-wrap gap-1">
-                          {school.programs.map((program, programIndex) => (
-                            <span 
-                              key={programIndex}
-                              className="px-2 py-1 bg-green-50 text-green-700 rounded text-xs"
-                            >
-                              {program}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+        {/* Contact Section */}
+        <Card className="bg-gray-100">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl text-gray-900">
+              Besoin d'informations supplémentaires ?
+            </CardTitle>
+            <CardDescription className="text-gray-600">
+              Notre équipe d'orientation est à votre disposition
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+              <div className="flex flex-col items-center gap-2">
+                <Phone className="h-8 w-8 text-green-700" />
+                <span className="font-semibold">Téléphone</span>
+                <span className="text-sm text-gray-600">+229 00 00 00 00</span>
               </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Call to Action */}
-        <div className="text-center bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl p-8 text-white">
-          <h2 className="text-2xl font-bold mb-4">
-            Prêt à rejoindre l'UNA ?
-          </h2>
-          <p className="text-green-50 mb-6 max-w-2xl mx-auto">
-            Choisissez votre site et votre école, puis inscrivez-vous pour commencer 
-            votre voyage académique avec nous.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-white text-green-700 hover:bg-gray-100 px-8 py-3">
-              Postuler maintenant
-            </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-green-700 px-8 py-3">
-              Demander plus d'informations
-            </Button>
-          </div>
-        </div>
+              <div className="flex flex-col items-center gap-2">
+                <Mail className="h-8 w-8 text-green-700" />
+                <span className="font-semibold">Email</span>
+                <span className="text-sm text-gray-600">orientation@una.bj</span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <MapPin className="h-8 w-8 text-green-700" />
+                <span className="font-semibold">Adresse</span>
+                <span className="text-sm text-gray-600">Parakou, Bénin</span>
+              </div>
+            </div>
+            
+            <div className="text-center mt-8">
+              <Button size="lg" className="bg-green-700 hover:bg-green-800">
+                <BookOpen className="h-5 w-5 mr-2" />
+                Postuler maintenant
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
